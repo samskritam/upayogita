@@ -459,24 +459,24 @@ object अक्षर{
   def parseLine(वाक्य:String) : List[अक्षर] = {
 
             val हलन्त = '्'
-            val _रिक्त = new रिक्त()
+//            val _रिक्त = new रिक्त()
 
     val (l,o)  = वाक्य.foldLeft[(List[अक्षर],Option[Char])]((List(),None))( (lo,c) => {
 
 
               if(lo._2 == None){
-                if(c == ' ') (lo._1,None) else (lo._1,Some(c))
+                  (lo._1,Some(c))
               }else{
                  val x = lo._2.get.toString
                 if(c == ' '){
                   //मात्रा वा? यदि मात्रा ,
                   if(स्वर_कोष.contains(x)){
-                    (_रिक्त:: स्वर_कोष(x)::lo._1,None)
+                    (स्वर_कोष(x)::lo._1,None)
                   }else if(व्यन्जन_कोष.contains(x)){
-                    (_रिक्त :: व्यन्जन_कोष(x)::lo._1,None)
+                    (व्यन्जन_कोष(x)::lo._1,None)
                   }else{
                     println(" something's wrong, unable to get अक्षर  "+x)
-                    (_रिक्त :: lo._1,None)
+                    (lo._1,None)
                   }
 
                 }else
@@ -491,7 +491,7 @@ object अक्षर{
                      (lo._1,None)
                    }
                  }   else{
-                   lo
+                  lo
                  }
 
               }
