@@ -461,10 +461,20 @@ object अक्षर{
             val हलन्त = '्'
 //            val _रिक्त = new रिक्त()
 
+//    def  सूचि_वृद्धी(s:String,lo:(List[अक्षर],Option[Char]),o: => Option[Char])  : (List[अक्षर],Option[Char]) = {
+//      if(स्वर_कोष.contains(s)){
+//        (स्वर_कोष(s)::lo._1,o)
+//      }else if(व्यन्जन_कोष.contains(s)){
+//        (व्यन्जन_कोष(s)::lo._1,o)
+//      }else{
+//        println(" something's wrong, unable to get अक्षर  "+s)
+//        (lo._1,o)
+//      }
+//    }
+
     val (l,o)  = वाक्य.foldLeft[(List[अक्षर],Option[Char])]((List(),None))( (lo,c) => {
 
-
-              if(lo._2 == None){
+              if(lo._2 == None || lo._2.get == ' ' ){
                   (lo._1,Some(c))
               }else{
                  val x = lo._2.get.toString
@@ -491,7 +501,15 @@ object अक्षर{
                      (lo._1,None)
                    }
                  }   else{
-                  lo
+                  val _अक्षर =x
+                  if(स्वर_कोष.contains(_अक्षर)){
+                    (स्वर_कोष(_अक्षर)::lo._1, Some(c))
+                  }else if(व्यन्जन_कोष.contains(_अक्षर)){
+                    (व्यन्जन_कोष(_अक्षर)::lo._1,Some(c))
+                  }else{
+                    println(" something's wrong, unable to get अक्षर  "+_अक्षर)
+                    (lo._1,None)
+                  }
                  }
 
               }
