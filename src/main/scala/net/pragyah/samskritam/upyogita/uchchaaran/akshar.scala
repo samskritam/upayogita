@@ -3,6 +3,7 @@ package net.pragyah.samskritam.upyogita.uchchaaran
 import net.pragyah.samskritam.upyogita.uchchaaran.types.एकं_स्पर्ष
 import scala._
 import scala.Some
+import scala.collection.immutable.HashSet
 
 /**
  * Created by vipul on 3/30/14.
@@ -459,57 +460,33 @@ object अक्षर{
   def parseLine(वाक्य:String) : List[अक्षर] = {
 
             val हलन्त = '्'
+            val  नियन्त्रक_वर्ण = HashSet(' ','\r','\n')
 //            val _रिक्त = new रिक्त()
 
-//    def  सूचि_वृद्धी(s:String,lo:(List[अक्षर],Option[Char]),o: => Option[Char])  : (List[अक्षर],Option[Char]) = {
-//      if(स्वर_कोष.contains(s)){
-//        (स्वर_कोष(s)::lo._1,o)
-//      }else if(व्यन्जन_कोष.contains(s)){
-//        (व्यन्जन_कोष(s)::lo._1,o)
-//      }else{
-//        println(" something's wrong, unable to get अक्षर  "+s)
-//        (lo._1,o)
-//      }
-//    }
+    def  सूचि_वृद्धी(s:String,lo:(List[अक्षर],Option[Char]),o: => Option[Char])  : (List[अक्षर],Option[Char]) = {
+      if(स्वर_कोष.contains(s)){
+        (स्वर_कोष(s)::lo._1,o)
+      }else if(व्यन्जन_कोष.contains(s)){
+        (व्यन्जन_कोष(s)::lo._1,o)
+      }else{
+        println(" something's wrong, unable to get अक्षर  "+s)
+        (lo._1,o)
+      }
+    }
 
     val (l,o)  = वाक्य.foldLeft[(List[अक्षर],Option[Char])]((List(),None))( (lo,c) => {
 
-              if(lo._2 == None || lo._2.get == ' ' ){
+              if(lo._2 == None || नियन्त्रक_वर्ण.contains(lo._2.get )){
                   (lo._1,Some(c))
               }else{
                  val x = lo._2.get.toString
                 if(c == ' '){
                   //मात्रा वा? यदि मात्रा ,
-                  if(स्वर_कोष.contains(x)){
-                    (स्वर_कोष(x)::lo._1,None)
-                  }else if(व्यन्जन_कोष.contains(x)){
-                    (व्यन्जन_कोष(x)::lo._1,None)
-                  }else{
-                    println(" something's wrong, unable to get अक्षर  "+x)
-                    (lo._1,None)
-                  }
-
-                }else
-                if( c == हलन्त ||  मात्रा_वा(c)){
-                   val _अक्षर = x+c.toString
-                   if(स्वर_कोष.contains(_अक्षर)){
-                     (स्वर_कोष(_अक्षर)::lo._1,None)
-                   }else if(व्यन्जन_कोष.contains(_अक्षर)){
-                     (व्यन्जन_कोष(_अक्षर)::lo._1,None)
-                   }else{
-                     println(" something's wrong, unable to get अक्षर  "+_अक्षर)
-                     (lo._1,None)
-                   }
-                 }   else{
-                  val _अक्षर =x
-                  if(स्वर_कोष.contains(_अक्षर)){
-                    (स्वर_कोष(_अक्षर)::lo._1, Some(c))
-                  }else if(व्यन्जन_कोष.contains(_अक्षर)){
-                    (व्यन्जन_कोष(_अक्षर)::lo._1,Some(c))
-                  }else{
-                    println(" something's wrong, unable to get अक्षर  "+_अक्षर)
-                    (lo._1,None)
-                  }
+                  सूचि_वृद्धी (x,lo,None)
+                }else if( c == हलन्त ||  मात्रा_वा(c)){
+                   सूचि_वृद्धी( x+c.toString,lo,None)
+                 }else{
+                  सूचि_वृद्धी(x.toString,lo,Some(c))
                  }
 
               }
@@ -518,18 +495,9 @@ object अक्षर{
 
         o match {
           case Some(c) => {
-            val _अक्षर = c.toString
-            if(स्वर_कोष.contains(_अक्षर)){
-              (स्वर_कोष(_अक्षर)::l).reverse
-            }else if(व्यन्जन_कोष.contains(_अक्षर)){
-              (व्यन्जन_कोष(_अक्षर)::l).reverse
-            }else{
-              println(" something's wrong, unable to get अक्षर  "+_अक्षर)
-              l.reverse
-            }
+            सूचि_वृद्धी( c.toString,(l,o),None)._1.reverse
           }
           case None => l.reverse
-
         }
 
 
@@ -543,13 +511,14 @@ object अक्षर{
     व्यन्जन_कोष.values.toList.sortBy(_._अक्षर).foreach(println)
 
 
-    val वाक्य = readLine();
+    var वाक्य = readLine();
 
-    val वाक्य_विच्छेद =parseLine(वाक्य)
-
-    वाक्य_विच्छेद.foreach(println)
-
-
+    while(वाक्य.trim != ""){
+      val वाक्य_विच्छेद =parseLine(वाक्य)
+      वाक्य_विच्छेद.foreach(println)
+      println("     -----     ")
+      वाक्य = readLine();
+    }
   }
 
 
