@@ -135,7 +135,7 @@ object _घोष_ extends Enumeration{
 }
 
 object _अनुनासिक_ extends Enumeration{
-  type अनुनासिक = Value
+  type _अनुनासिक_ = Value
   val अनुनासिक_न = Value(0)
   val अनुनासिक = Value(1)
 }
@@ -159,6 +159,7 @@ object implicites {
 
   implicit def स्वरम्_अक्षर (स:स्वर) = स.asInstanceOf[अक्षर]
   implicit def व्यन्जनम्_अक्षर (व:व्यन्जन) = व.asInstanceOf[अक्षर]
+  implicit def अनुनासिक_वा (अ:_अनुनासिक_._अनुनासिक_) = अ.id == 1
 
 }
 
@@ -193,7 +194,7 @@ case class अक्षर(
     _समय : समय,
     _जिह्वा_संकुचित:जिह्वा_संकुचित,// जिह्वा संकुचित अस्ति/नास्ति
     _घोष : घोष,
-    _अनुनासिक:अनुनासिक,
+    _अनुनासिक:_अनुनासिक_,
     _ऊष्म:ऊष्म
 ) {
 
@@ -234,6 +235,7 @@ object अक्षर{
 
 
   val व्यन्जन_कोष= scala.collection.mutable.Map[String,अक्षर] ()
+  val अनुनासिक_कोष= scala.collection.mutable.Map[स्पर्ष_स्थान,अक्षर] ()
 
 
 
@@ -244,7 +246,7 @@ object अक्षर{
                     _समय : समय,
                     _जिह्वा_संकुचित:जिह्वा_संकुचित,// जिह्वा संकुचित अस्ति/नास्ति
                     _घोष : घोष,
-                    _अनुनासिक:अनुनासिक,
+                    _अनुनासिक:_अनुनासिक_,
                     _ऊष्म:ऊष्म,
                     _मात्रा : Option[String]
                     ):अक्षर ={
@@ -258,6 +260,9 @@ object अक्षर{
          case None => {
            val  व =  new अक्षर(_अक्षर,_स्पर्ष,_प्राण ,_समय,_जिह्वा_संकुचित,_घोष,_अनुनासिक,_ऊष्म) with व्यन्जन
            व्यन्जन_कोष(_अक्षर) = व
+           if(_अनुनासिक){
+             अनुनासिक_कोष(_स्पर्ष._स्पर्ष.head.head._1) = व
+           }
            व
 
          }
@@ -421,9 +426,8 @@ object अक्षर{
         अक्षर.सन्युक्त(_अक्षर,v,_स्वर)
       })
     }
-  }
+  })
 
-  )
 
 
   def मात्रा_वा(म:Char)= मात्रा_कोष.contains(म.toString)
@@ -452,16 +456,20 @@ object अक्षर{
       }
     }
 
-    val (l,o)  = वाक्य.foldLeft[(List[अक्षर],Option[Char])]((List(),None))( (lo,c) => {
+    val (l,o)  = वाक्य.foldLeft[(List[अक्षर],Option[Char])]((List(),None))( (lo,current) => {
 
               if(lo._2 == None || नियन्त्रक_वर्ण.contains(lo._2.get )){
-                  (lo._1,Some(c))
+                if(current == 'ं'){
+                  सूचि_वृद्धी( lo._1.head._अक्षर+current.toString,(lo._1.tail,lo._2),None)
+                }
+                else
+                  (lo._1,Some(current))
               }else{
-                 val x = lo._2.get.toString
-                if( c == हलन्त ||  मात्रा_वा(c)){
-                   सूचि_वृद्धी( x+c.toString,lo,None)
+                 val carry_over = lo._2.get.toString
+                if( current == हलन्त ||  मात्रा_वा(current)){
+                   सूचि_वृद्धी( carry_over+current.toString,lo,None)
                  }else{
-                  सूचि_वृद्धी(x.toString,lo,Some(c))
+                  सूचि_वृद्धी(carry_over.toString,lo,Some(current))
                  }
 
               }
@@ -484,7 +492,7 @@ object अक्षर{
     println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
     स्वर_कोष.values.toList.sortBy(_._अक्षर).foreach(println)
     व्यन्जन_कोष.values.toList.sortBy(_._अक्षर).foreach(println)
-
+    अनुनासिक_कोष.foreach(println)
 
     var वाक्य = readLine();
 
