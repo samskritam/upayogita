@@ -237,9 +237,11 @@ object अक्षर{
   val व्यन्जन_कोष= scala.collection.mutable.Map[String,अक्षर] ()
   val अनुनासिक_कोष= scala.collection.mutable.Map[स्पर्ष_स्थान,अक्षर] ()
 
+  val हलन्त = '्'
+  val बिन्दु = 'ं'
 
 
-    def apply(
+  def apply(
                     _अक्षर : String,
                     _स्पर्ष : स्पर्ष,
                     _प्राण : प्राण,
@@ -329,7 +331,7 @@ object अक्षर{
    */
 
   val अ =   अक्षर("अ", (अस्पर्ष,शून्य),अल्पप्राण, ह्रस्व, संकुचित_न,  अघोष ,  अनुनासिक_न, ऊष्म_न,Some(""))
-  val अा =  अक्षर("अा",(अस्पर्ष,शून्य),अल्पप्राण, दीर्घ, संकुचित_न,  घोष ,  अनुनासिक_न, ऊष्म_न,Some("ा"))
+  val आ =  अक्षर("आ",(अस्पर्ष,शून्य),अल्पप्राण, दीर्घ, संकुचित_न,  घोष ,  अनुनासिक_न, ऊष्म_न,Some("ा"))
 
   val इ =   अक्षर("इ",(तालव्य,पादोन),अल्पप्राण, ह्रस्व, संकुचित_न,  अघोष ,  अनुनासिक_न, ऊष्म_न,Some("ि"))
   val ई =   अक्षर("ई",(तालव्य,पादोन),अल्पप्राण, दीर्घ, संकुचित_न,  घोष ,  अनुनासिक_न, ऊष्म_न,Some("ी"))
@@ -344,7 +346,7 @@ object अक्षर{
   val औ =   अक्षर.सन्युक्त("अौ",अ,ऊ,Some("ौ"))
 
 
-  val अं =   अक्षर("अं",List(List((अस्पर्ष,शून्य)),List((कण्ठ्य,पूर्ण))),अल्पप्राण, ह्रस्व, संकुचित_न,  घोष ,  अनुनासिक, ऊष्म_न,Some("ं"))
+  val अं =   अक्षर("अं",List(List((अस्पर्ष,शून्य)),List((कण्ठ्य,पूर्ण))),अल्पप्राण, ह्रस्व, संकुचित_न,  घोष ,  अनुनासिक, ऊष्म_न)
 
 
   /**
@@ -428,10 +430,22 @@ object अक्षर{
     }
   })
 
-
-
   def मात्रा_वा(म:Char)= मात्रा_कोष.contains(म.toString)
 
+  def अक्षर_ददातु(अ:String) : Option[अक्षर]= {
+    if(अ == बिन्दु.toString){
+      Some(म्)
+    }
+    else if(स्वर_कोष.contains(अ)){
+      Some(स्वर_कोष(अ))
+    }else if(व्यन्जन_कोष.contains(अ)){
+      Some(व्यन्जन_कोष(अ))
+    }else{
+      println(" something's wrong, unable to get अक्षर  "+अ)
+      None
+    }
+
+  }
 
   /**
    *
@@ -442,33 +456,38 @@ object अक्षर{
    */
   def विश्लेषण(वाक्य:String) : List[अक्षर] = {
 
-            val हलन्त = '्'
             val  नियन्त्रक_वर्ण = HashSet('\r','\n')
 
-    def  सूचि_वृद्धी(s:String,lo:(List[अक्षर],Option[Char]),o: => Option[Char])  : (List[अक्षर],Option[Char]) = {
-      if(स्वर_कोष.contains(s)){
-        (स्वर_कोष(s)::lo._1,o)
-      }else if(व्यन्जन_कोष.contains(s)){
-        (व्यन्जन_कोष(s)::lo._1,o)
-      }else{
-        println(" something's wrong, unable to get अक्षर  "+s)
-        (lo._1,o)
+    def  सूचि_वृद्धी(s:String,lo:(List[अक्षर],Option[Char]),o: => Option[Char])  : (List[अक्षर],Option[Char]) =
+      अक्षर_ददातु(s) match{
+        case Some(_अ_) =>(_अ_ ::lo._1,o)
+        case None =>(lo._1,o)
       }
-    }
 
     val (l,o)  = वाक्य.foldLeft[(List[अक्षर],Option[Char])]((List(),None))( (lo,current) => {
 
+
+
               if(lo._2 == None || नियन्त्रक_वर्ण.contains(lo._2.get )){
-                if(current == 'ं'){
-                  सूचि_वृद्धी( lo._1.head._अक्षर+current.toString,(lo._1.tail,lo._2),None)
-                }
-                else
                   (lo._1,Some(current))
               }else{
-                 val carry_over = lo._2.get.toString
-                if( current == हलन्त ||  मात्रा_वा(current)){
-                   सूचि_वृद्धी( carry_over+current.toString,lo,None)
-                 }else{
+                val carry_over = lo._2.get
+
+                 if(carry_over == बिन्दु){
+
+                  val new_carry_over = if(current.equals(' ') || नियन्त्रक_वर्ण.contains(current)) "म्"
+                  else //"म्"  // fix this ..{
+                  {
+                    val आ = अक्षर_ददातु(current.toString)
+                    अनुनासिक_कोष(आ.get._स्पर्ष._स्पर्ष.head.head._1)._अक्षर
+                  }
+
+
+                  सूचि_वृद्धी(new_carry_over,lo,Some(current))
+                }else if( current == हलन्त ||  मात्रा_वा(current)){
+                   सूचि_वृद्धी( carry_over.toString+current.toString,lo,None)
+                 }
+                else{
                   सूचि_वृद्धी(carry_over.toString,lo,Some(current))
                  }
 
@@ -488,10 +507,13 @@ object अक्षर{
 
   def main(args:Array[String]){
 
+    println("++++++++++++++++++++++++++मात्रा_कोष++++++++++++++++++++++++++++++++++")
     मात्रा_कोष.toList.sortBy(_._2._अक्षर).foreach(println)
-    println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+    println("++++++++++++++++++++++++++++स्वर_कोष++++++++++++++++++++++++++++++++")
     स्वर_कोष.values.toList.sortBy(_._अक्षर).foreach(println)
+    println("++++++++++++++++++++++++++++व्यन्जन_कोष++++++++++++++++++++++++++++++++")
     व्यन्जन_कोष.values.toList.sortBy(_._अक्षर).foreach(println)
+    println("++++++++++++++++++++++++++++अनुनासिक_कोष++++++++++++++++++++++++++++++++")
     अनुनासिक_कोष.foreach(println)
 
     var वाक्य = readLine();
